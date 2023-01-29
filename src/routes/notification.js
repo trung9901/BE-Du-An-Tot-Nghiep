@@ -1,19 +1,12 @@
 import { Router } from "express";
 import {
-  getListAdminNotification,
-  getUserListNotification,
-readNotification,
+  readAllNotification,
+  readNotification,
 } from "../controllers/notification";
 import { jwtVerifyToken } from "../middlewares/jwtVerifyToken";
 import { isAdmin } from "../middlewares/checkRole";
 const router = Router();
 
-router.get(
-  "/admin-notification",
-  jwtVerifyToken,
-  isAdmin,
-  getListAdminNotification
-);
-router.get("/user-notification", jwtVerifyToken, getUserListNotification);
-router.put("/read-notification/:id", readNotification);
+router.put("/read-notification/:id", jwtVerifyToken, readNotification);
+router.put("/read-all-notification", jwtVerifyToken, readAllNotification);
 export default router;

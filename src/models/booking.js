@@ -20,7 +20,7 @@ const bookingSchema = new Schema(
     },
     status: {
       type: Number,
-      default: 0,
+      default : 0,
     },
     date: {
       type: Date,
@@ -32,16 +32,22 @@ const bookingSchema = new Schema(
     userId: {
       type: ObjectId,
       ref: "Users",
+      required:false
     },
     employeeId: {
       type: ObjectId,
       ref: "Employee",
     },
-    serviceId: [
-      {
+    services: [
+     {
+      serviceId : {
         type : ObjectId,
-        ref : "Service"
+        ref: "Service"
+      },
+      price : {
+        type : Number
       }
+     }
     ],
     gender:{
       type : String,
@@ -49,6 +55,10 @@ const bookingSchema = new Schema(
     bookingPrice : {
       type : Number
     },
+    voucher : {
+      type : ObjectId,
+      ref : 'Voucher'
+    }
   },
   { timestamps: true }
 );

@@ -1,12 +1,10 @@
-import e from "cors";
-import { redis } from "googleapis/build/src/apis/redis";
-import { finished } from "nodemailer/lib/xoauth2";
+
 import Booking from "../models/booking";
 import Employee from "../models/employee";
 import User from "../models/user";
 export const list = async (req, res) => {
   try {
-    const employees = await Employee.find({}).exec();
+    const employees = await Employee.find({}).sort({createdAt : -1}).exec();
     res.json(employees);
   } catch (error) {
     res.status(400).json({
@@ -75,8 +73,9 @@ export const deleteEmployee = async (req, res) => {
       { _id: req.params.id },
       { new: true }
     ).exec();
+    await User.findOneAndDelete({employeeId : req.params.id}).exec()
     res.json({
-      message: "Success",
+      message: "Xoá nhân viên  thành công.",
       employee,
     });
   } catch (error) {
@@ -97,7 +96,10 @@ export const employeeOrderStatistics = async (req, res) => {
         { $match: { status: 4 } },
         { $group: { _id: null, sum: { $sum: "$bookingPrice" } } },
       ]);
-      const totalTurnOver = getTotal[0].sum;
+      let totalTurnOver  = 0
+      if(getTotal.length){
+        totalTurnOver = getTotal[0].sum;
+      }
       for (let i = 0; i < employee.length; i++) {
         const finishedBooking = await Booking.find({
           employeeId: employee[i]._id,
@@ -153,7 +155,6 @@ export const employeeOrderStatistics = async (req, res) => {
       });
     }
     else if(year && !month){
-      
       const documents = await Booking.aggregate([{$match:
         {$and : [
           {$expr:{$eq:[{$year:"$date"},year]}},
@@ -342,7 +343,10 @@ export const statisticsForOneEmployee = async (req, res) => {
         { $match: { status: 4 } },
         { $group: { _id: null, sum: { $sum: "$bookingPrice" } } },
       ]);
-      const totalTurnOver = getTotal[0].sum;
+      let totalTurnOver = 0 
+      if(getTotal.length){
+         totalTurnOver = getTotal[0].sum;
+      }
       const information = await Employee.findOne({ _id: id }).exec();
       const totalBooking = await Booking.countDocuments({
         employeeId: id,
@@ -407,7 +411,7 @@ export const statisticsForOneEmployee = async (req, res) => {
           {$expr:{$eq:[{$year:"$date"},year]}},
         ]}
       }])
-      console.log(totalBooking);
+    
       const unConfimred = await Booking.aggregate([{$match:
         {$and : [
          
